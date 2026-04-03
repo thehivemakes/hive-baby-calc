@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://thehivemakes.github.io/hive-baby-calc/sitemap.xml

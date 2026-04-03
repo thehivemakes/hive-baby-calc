@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conception Date Calculator — BabyCalc</title>
+<meta name="description" content="Conception date calculator. Estimate when conception occurred from due date or last period. Free pregnancy tool.">
+<meta property="og:title" content="Conception Date Calculator — BabyCalc">
+<meta property="og:description" content="Conception date calculator. Estimate when conception occurred from due date or last period. Free pregnancy tool.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://thehivemakes.github.io/hive-baby-calc/conception.html">
+<link rel="stylesheet" href="style.css">
+<script src="js/calc-core.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Conception Date Calculator",
+  "url": "https://thehivemakes.github.io/hive-baby-calc/conception.html",
+  "description": "Conception date calculator. Estimate when conception occurred from due date or last period. Free pregnancy tool.",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "Any"
+}
+</script>
+</head>
+<body>
+<header><div class="header-inner"><div class="logo">Baby<span>Calc</span></div><div class="tagline">Free pregnancy calculators</div></div></header>
+<nav><div class="nav-inner"><a href="index.html">BabyCalc</a><span class="sep">/</span><span>Conception Date Calculator</span></div></nav>
+<main>
+  <div class="ad-leaderboard" id="ad-top">Ad</div>
+  <div class="card">
+    <h1>Conception Date Calculator</h1>
+    <p class="subtitle">Enter your due date or LMP to estimate when conception occurred.</p>
+    <div class="form-grid">
+      <div class="field">
+        <label for="con_edd">Due date (YYYY-MM-DD)</label>
+        <select id="con_edd"></select>
+      </div>
+      <div class="field">
+        <label for="con_cycle">Average cycle length (days)</label>
+        <input type="number" id="con_cycle" step="1" placeholder="28" value="28">
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="calculate()">Calculate</button>
+    <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
+    <div class="result" id="result">
+      <div class="result-row">
+        <span class="result-label">Estimated conception date</span>
+        <span class="result-value" id="con-date">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Likely conception window</span>
+        <span class="result-value" id="con-range">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Implied LMP date</span>
+        <span class="result-value" id="con-lmp">—</span>
+      </div>
+      <div class="result-note">Conception typically occurs about 266 days (38 weeks) before the due date, which is approximately 14 days after the LMP for a 28-day cycle. The actual date can vary by several days.</div>
+    </div>
+  </div>
+
+  <div class="ad-rectangle" id="ad-mid">Ad</div>
+  <div class="seo-section">
+    <h2>When Did Conception Occur?</h2>
+    <p>Conception typically occurs around ovulation, which is about 14 days before the next expected period. From a due date, subtract 266 days to estimate conception.</p>
+    <p>This is an estimate. Sperm can survive up to 5 days, so conception could have occurred several days before or on the day of ovulation.</p>
+  </div>
+</main>
+<footer>Free pregnancy calculators. No signup, no tracking. These tools are for informational purposes only. Always consult your healthcare provider.<br>Built by <a href="https://thehivemakes.github.io/" style="color:var(--accent)">The Hive</a></footer>
+<script>
+
+function calculate() {
+  const eddStr = document.getElementById('con_edd').value;
+  const cycle = CalcCore.get('con_cycle') || 28;
+  if (!eddStr) return;
+  const edd = new Date(eddStr + 'T00:00:00');
+  if (isNaN(edd.getTime())) return;
+
+  const conception = new Date(edd.getTime() - 266 * 86400000);
+  const conEarly = new Date(conception.getTime() - 5 * 86400000);
+  const conLate = new Date(conception.getTime() + 1 * 86400000);
+  const lmp = new Date(edd.getTime() - 280 * 86400000);
+
+  function fmt(d) {
+    const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return m[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
+  }
+
+  CalcCore.set('con-date', '~' + fmt(conception));
+  CalcCore.set('con-range', fmt(conEarly) + ' \u2013 ' + fmt(conLate));
+  CalcCore.set('con-lmp', fmt(lmp));
+  CalcCore.showResult();
+  CalcCore.saveParams(['con_edd','con_cycle']);
+}
+
+function clearAll() {
+  ["con_edd", "con_cycle"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = el.defaultValue || '';
+  });
+  document.getElementById('result').classList.remove('visible');
+  history.replaceState(null, '', window.location.pathname);
+}
+
+document.addEventListener('DOMContentLoaded', () => { if (window.location.search) calculate(); });
+</script>
+</body>
+</html>

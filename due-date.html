@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Due Date Calculator — BabyCalc</title>
+<meta name="description" content="Pregnancy due date calculator. Enter last menstrual period to find estimated due date, trimester dates, and weeks pregnant. Free tool.">
+<meta property="og:title" content="Due Date Calculator — BabyCalc">
+<meta property="og:description" content="Pregnancy due date calculator. Enter last menstrual period to find estimated due date, trimester dates, and weeks pregnant. Free tool.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://thehivemakes.github.io/hive-baby-calc/due-date.html">
+<link rel="stylesheet" href="style.css">
+<script src="js/calc-core.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Due Date Calculator",
+  "url": "https://thehivemakes.github.io/hive-baby-calc/due-date.html",
+  "description": "Pregnancy due date calculator. Enter last menstrual period to find estimated due date, trimester dates, and weeks pregnant. Free tool.",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "Any"
+}
+</script>
+</head>
+<body>
+<header><div class="header-inner"><div class="logo">Baby<span>Calc</span></div><div class="tagline">Free pregnancy calculators</div></div></header>
+<nav><div class="nav-inner"><a href="index.html">BabyCalc</a><span class="sep">/</span><span>Due Date Calculator</span></div></nav>
+<main>
+  <div class="ad-leaderboard" id="ad-top">Ad</div>
+  <div class="card">
+    <h1>Due Date Calculator</h1>
+    <p class="subtitle">Enter the first day of your last period or known conception date.</p>
+    <div class="form-grid">
+      <div class="field">
+        <label for="lmp_date">First day of last menstrual period (YYYY-MM-DD)</label>
+        <select id="lmp_date"></select>
+      </div>
+      <div class="field">
+        <label for="cycle_length">Average cycle length (days)</label>
+        <input type="number" id="cycle_length" min="20" max="45" step="1" placeholder="28" value="28">
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="calculate()">Calculate</button>
+    <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
+    <div class="result" id="result">
+      <div class="result-row">
+        <span class="result-label">Estimated due date</span>
+        <span class="result-value" id="dd-edd">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Current weeks pregnant</span>
+        <span class="result-value" id="dd-weeks">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">First trimester ends</span>
+        <span class="result-value" id="dd-tri1">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Second trimester ends</span>
+        <span class="result-value" id="dd-tri2">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Estimated conception date</span>
+        <span class="result-value" id="dd-conception">—</span>
+      </div>
+      <div class="result-note">Naegele's rule: EDD = LMP + 280 days (adjusted for cycle length). Only 5% of babies arrive on their due date. The normal range is 37–42 weeks.</div>
+    </div>
+  </div>
+
+  <div class="ad-rectangle" id="ad-mid">Ad</div>
+  <div class="seo-section">
+    <h2>How Due Dates Are Calculated</h2>
+    <p>The estimated due date (EDD) is calculated using Naegele's rule: add 280 days (40 weeks) to the first day of your last menstrual period (LMP). For cycles longer or shorter than 28 days, the date is adjusted.</p>
+    <p>Due dates are estimates. Only about 5% of babies are born on their exact due date. Most arrive within two weeks before or after. Your healthcare provider may adjust the date based on ultrasound measurements.</p>
+  </div>
+</main>
+<footer>Free pregnancy calculators. No signup, no tracking. These tools are for informational purposes only. Always consult your healthcare provider.<br>Built by <a href="https://thehivemakes.github.io/" style="color:var(--accent)">The Hive</a></footer>
+<script>
+
+function calculate() {
+  const lmpEl = document.getElementById('lmp_date');
+  const lmpStr = lmpEl.value;
+  const cycleLen = CalcCore.get('cycle_length') || 28;
+  if (!lmpStr) return;
+
+  const lmp = new Date(lmpStr + 'T00:00:00');
+  if (isNaN(lmp.getTime())) return;
+
+  const cycleAdj = cycleLen - 28;
+  const edd = new Date(lmp.getTime() + (280 + cycleAdj) * 86400000);
+  const conception = new Date(lmp.getTime() + (14 + cycleAdj) * 86400000);
+  const tri1End = new Date(lmp.getTime() + (13 * 7) * 86400000);
+  const tri2End = new Date(lmp.getTime() + (27 * 7) * 86400000);
+
+  const today = new Date();
+  const daysSinceLMP = Math.floor((today - lmp) / 86400000);
+  const weeks = Math.floor(daysSinceLMP / 7);
+  const days = daysSinceLMP % 7;
+
+  function fmt(d) {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  }
+
+  CalcCore.set('dd-edd', fmt(edd));
+  CalcCore.set('dd-weeks', weeks + ' weeks, ' + days + ' days (' + daysSinceLMP + ' days total)');
+  CalcCore.set('dd-tri1', fmt(tri1End) + ' (end of week 13)');
+  CalcCore.set('dd-tri2', fmt(tri2End) + ' (end of week 27)');
+  CalcCore.set('dd-conception', '~' + fmt(conception));
+  CalcCore.showResult();
+  CalcCore.saveParams(['lmp_date','cycle_length']);
+}
+
+function clearAll() {
+  ["lmp_date", "cycle_length"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = el.defaultValue || '';
+  });
+  document.getElementById('result').classList.remove('visible');
+  history.replaceState(null, '', window.location.pathname);
+}
+
+document.addEventListener('DOMContentLoaded', () => { if (window.location.search) calculate(); });
+</script>
+</body>
+</html>

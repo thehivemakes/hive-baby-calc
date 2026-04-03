@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fetal Growth Tracker — BabyCalc</title>
+<meta name="description" content="Fetal growth calculator. See expected baby length and weight by gestational week. Free pregnancy tracking tool.">
+<meta property="og:title" content="Fetal Growth Tracker — BabyCalc">
+<meta property="og:description" content="Fetal growth calculator. See expected baby length and weight by gestational week. Free pregnancy tracking tool.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://thehivemakes.github.io/hive-baby-calc/fetal-growth.html">
+<link rel="stylesheet" href="style.css">
+<script src="js/calc-core.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Fetal Growth Tracker",
+  "url": "https://thehivemakes.github.io/hive-baby-calc/fetal-growth.html",
+  "description": "Fetal growth calculator. See expected baby length and weight by gestational week. Free pregnancy tracking tool.",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "Any"
+}
+</script>
+</head>
+<body>
+<header><div class="header-inner"><div class="logo">Baby<span>Calc</span></div><div class="tagline">Free pregnancy calculators</div></div></header>
+<nav><div class="nav-inner"><a href="index.html">BabyCalc</a><span class="sep">/</span><span>Fetal Growth Tracker</span></div></nav>
+<main>
+  <div class="ad-leaderboard" id="ad-top">Ad</div>
+  <div class="card">
+    <h1>Fetal Growth Tracker</h1>
+    <p class="subtitle">Enter gestational week to see expected fetal measurements.</p>
+    <div class="form-grid">
+      <div class="field">
+        <label for="gest_week">Gestational week</label>
+        <input type="number" id="gest_week" min="4" max="42" step="1" placeholder="20">
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="calculate()">Calculate</button>
+    <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
+    <div class="result" id="result">
+      <div class="result-row">
+        <span class="result-label">Crown-to-heel length</span>
+        <span class="result-value" id="fg-length">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Estimated weight</span>
+        <span class="result-value" id="fg-weight">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Size comparison</span>
+        <span class="result-value" id="fg-size">—</span>
+      </div>
+      <div class="result-note">Growth data based on WHO fetal growth standards (50th percentile). Individual babies vary. Your healthcare provider tracks your baby's specific growth curve.</div>
+    </div>
+  </div>
+  <div class="card">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:12px;">Fetal Growth by Week (50th Percentile)</h2>
+    <table class="ref-table" id="ref-table">
+      <thead><tr><th>Week</th><th>Length (in)</th><th>Weight</th><th>Size of...</th></tr></thead>
+      <tbody>
+        <tr><td>12</td><td>2.1"</td><td>0.5 oz</td><td>Lime</td></tr>
+        <tr><td>16</td><td>4.6"</td><td>3.5 oz</td><td>Avocado</td></tr>
+        <tr><td>20</td><td>6.5"</td><td>10.6 oz</td><td>Banana</td></tr>
+        <tr><td>24</td><td>11.8"</td><td>1.3 lb</td><td>Corn ear</td></tr>
+        <tr><td>28</td><td>14.8"</td><td>2.2 lb</td><td>Eggplant</td></tr>
+        <tr><td>32</td><td>16.7"</td><td>3.75 lb</td><td>Squash</td></tr>
+        <tr><td>36</td><td>18.7"</td><td>5.8 lb</td><td>Honeydew</td></tr>
+        <tr><td>40</td><td>20.2"</td><td>7.6 lb</td><td>Watermelon</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="ad-rectangle" id="ad-mid">Ad</div>
+  <div class="seo-section">
+    <h2>Fetal Growth Week by Week</h2>
+    <p>Fetal growth follows a predictable curve. By 12 weeks, the baby is about 2 inches long. By 20 weeks (the halfway point), about 6.5 inches. At full term (40 weeks), the average baby is about 20 inches and 7.5 pounds.</p>
+    <p>These are 50th percentile values — half of babies are larger, half smaller. Your provider uses ultrasound to track your specific baby's growth curve.</p>
+  </div>
+</main>
+<footer>Free pregnancy calculators. No signup, no tracking. These tools are for informational purposes only. Always consult your healthcare provider.<br>Built by <a href="https://thehivemakes.github.io/" style="color:var(--accent)">The Hive</a></footer>
+<script>
+
+const GROWTH = {
+  4:[0,0,'Poppy seed'],8:[0.6,0.04,'Raspberry'],12:[2.1,0.5,'Lime'],
+  14:[3.4,1.5,'Lemon'],16:[4.6,3.5,'Avocado'],18:[5.6,6.7,'Bell pepper'],
+  20:[6.5,10.6,'Banana'],22:[10.9,15.2,'Papaya'],24:[11.8,1.3,'Corn ear'],
+  26:[14.0,1.7,'Lettuce head'],28:[14.8,2.2,'Eggplant'],30:[15.7,2.9,'Cabbage'],
+  32:[16.7,3.75,'Squash'],34:[17.7,4.7,'Cantaloupe'],36:[18.7,5.8,'Honeydew'],
+  38:[19.6,6.8,'Pumpkin'],40:[20.2,7.6,'Watermelon'],42:[20.3,7.9,'Watermelon']
+};
+function calculate() {
+  const w = CalcCore.get('gest_week');
+  if (isNaN(w)||w<4||w>42) return;
+  const weeks = Object.keys(GROWTH).map(Number).sort((a,b)=>a-b);
+  let closest = weeks[0];
+  for (const wk of weeks) { if (wk <= w) closest = wk; }
+  const data = GROWTH[closest];
+  const weightStr = data[1] < 1 ? CalcCore.fmt(data[1],1) + ' oz' : CalcCore.fmt(data[1],1) + ' lb';
+  CalcCore.set('fg-length', CalcCore.fmt(data[0],1) + ' inches');
+  CalcCore.set('fg-weight', weightStr);
+  CalcCore.set('fg-size', 'About the size of a ' + data[2]);
+  CalcCore.showResult();
+  CalcCore.saveParams(['gest_week']);
+}
+
+function clearAll() {
+  ["gest_week"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = el.defaultValue || '';
+  });
+  document.getElementById('result').classList.remove('visible');
+  history.replaceState(null, '', window.location.pathname);
+}
+
+document.addEventListener('DOMContentLoaded', () => { if (window.location.search) calculate(); });
+</script>
+</body>
+</html>

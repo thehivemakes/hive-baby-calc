@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ovulation Calculator — BabyCalc</title>
+<meta name="description" content="Ovulation calculator. Find your fertile window and estimated ovulation date. Enter cycle details. Free fertility tool.">
+<meta property="og:title" content="Ovulation Calculator — BabyCalc">
+<meta property="og:description" content="Ovulation calculator. Find your fertile window and estimated ovulation date. Enter cycle details. Free fertility tool.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://thehivemakes.github.io/hive-baby-calc/ovulation.html">
+<link rel="stylesheet" href="style.css">
+<script src="js/calc-core.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Ovulation Calculator",
+  "url": "https://thehivemakes.github.io/hive-baby-calc/ovulation.html",
+  "description": "Ovulation calculator. Find your fertile window and estimated ovulation date. Enter cycle details. Free fertility tool.",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "Any"
+}
+</script>
+</head>
+<body>
+<header><div class="header-inner"><div class="logo">Baby<span>Calc</span></div><div class="tagline">Free pregnancy calculators</div></div></header>
+<nav><div class="nav-inner"><a href="index.html">BabyCalc</a><span class="sep">/</span><span>Ovulation Calculator</span></div></nav>
+<main>
+  <div class="ad-leaderboard" id="ad-top">Ad</div>
+  <div class="card">
+    <h1>Ovulation Calculator</h1>
+    <p class="subtitle">Enter your last period date and cycle length to find your fertile days.</p>
+    <div class="form-grid">
+      <div class="field">
+        <label for="ov_lmp">First day of last period (YYYY-MM-DD)</label>
+        <select id="ov_lmp"></select>
+      </div>
+      <div class="field">
+        <label for="ov_cycle">Average cycle length (days)</label>
+        <input type="number" id="ov_cycle" min="20" max="45" step="1" placeholder="28" value="28">
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="calculate()">Calculate</button>
+    <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
+    <div class="result" id="result">
+      <div class="result-row">
+        <span class="result-label">Estimated ovulation date</span>
+        <span class="result-value" id="ov-date">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Fertile window</span>
+        <span class="result-value" id="ov-window">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Next period expected</span>
+        <span class="result-value" id="ov-next">—</span>
+      </div>
+      <div class="result-note">Ovulation typically occurs 14 days before the next period. The fertile window is approximately 5 days before ovulation through 1 day after. Sperm can survive up to 5 days; the egg survives 12–24 hours.</div>
+    </div>
+  </div>
+
+  <div class="ad-rectangle" id="ad-mid">Ad</div>
+  <div class="seo-section">
+    <h2>How to Calculate Your Fertile Window</h2>
+    <p>Ovulation typically occurs about 14 days before your next expected period. For a 28-day cycle, that is around day 14. For a 32-day cycle, around day 18.</p>
+    <p>The fertile window spans approximately 6 days: the 5 days before ovulation plus ovulation day itself. This is because sperm can survive in the reproductive tract for up to 5 days.</p>
+  </div>
+</main>
+<footer>Free pregnancy calculators. No signup, no tracking. These tools are for informational purposes only. Always consult your healthcare provider.<br>Built by <a href="https://thehivemakes.github.io/" style="color:var(--accent)">The Hive</a></footer>
+<script>
+
+function calculate() {
+  const lmpStr = document.getElementById('ov_lmp').value;
+  const cycle = CalcCore.get('ov_cycle') || 28;
+  if (!lmpStr) return;
+  const lmp = new Date(lmpStr + 'T00:00:00');
+  if (isNaN(lmp.getTime())) return;
+
+  const ovDay = cycle - 14;
+  const ovDate = new Date(lmp.getTime() + ovDay * 86400000);
+  const fertileStart = new Date(ovDate.getTime() - 5 * 86400000);
+  const fertileEnd = new Date(ovDate.getTime() + 1 * 86400000);
+  const nextPeriod = new Date(lmp.getTime() + cycle * 86400000);
+
+  function fmt(d) {
+    const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return m[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
+  }
+
+  CalcCore.set('ov-date', fmt(ovDate) + ' (cycle day ' + ovDay + ')');
+  CalcCore.set('ov-window', fmt(fertileStart) + ' \u2013 ' + fmt(fertileEnd) + ' (6 days)');
+  CalcCore.set('ov-next', fmt(nextPeriod));
+  CalcCore.showResult();
+  CalcCore.saveParams(['ov_lmp','ov_cycle']);
+}
+
+function clearAll() {
+  ["ov_lmp", "ov_cycle"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = el.defaultValue || '';
+  });
+  document.getElementById('result').classList.remove('visible');
+  history.replaceState(null, '', window.location.pathname);
+}
+
+document.addEventListener('DOMContentLoaded', () => { if (window.location.search) calculate(); });
+</script>
+</body>
+</html>

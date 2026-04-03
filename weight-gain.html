@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pregnancy Weight Gain Tracker — BabyCalc</title>
+<meta name="description" content="Pregnancy weight gain calculator. Check if gain is within IOM guidelines by BMI category and gestational week. Free tool.">
+<meta property="og:title" content="Pregnancy Weight Gain Tracker — BabyCalc">
+<meta property="og:description" content="Pregnancy weight gain calculator. Check if gain is within IOM guidelines by BMI category and gestational week. Free tool.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://thehivemakes.github.io/hive-baby-calc/weight-gain.html">
+<link rel="stylesheet" href="style.css">
+<script src="js/calc-core.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Pregnancy Weight Gain Tracker",
+  "url": "https://thehivemakes.github.io/hive-baby-calc/weight-gain.html",
+  "description": "Pregnancy weight gain calculator. Check if gain is within IOM guidelines by BMI category and gestational week. Free tool.",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "Any"
+}
+</script>
+</head>
+<body>
+<header><div class="header-inner"><div class="logo">Baby<span>Calc</span></div><div class="tagline">Free pregnancy calculators</div></div></header>
+<nav><div class="nav-inner"><a href="index.html">BabyCalc</a><span class="sep">/</span><span>Pregnancy Weight Gain Tracker</span></div></nav>
+<main>
+  <div class="ad-leaderboard" id="ad-top">Ad</div>
+  <div class="card">
+    <h1>Pregnancy Weight Gain Tracker</h1>
+    <p class="subtitle">Enter pre-pregnancy BMI and current weight to check recommended range.</p>
+    <div class="form-grid">
+      <div class="field">
+        <label for="pre_weight">Pre-pregnancy weight (lbs)</label>
+        <input type="number" id="pre_weight" step="1" placeholder="140">
+      </div>
+      <div class="field">
+        <label for="height_in">Height (inches)</label>
+        <input type="number" id="height_in" step="1" placeholder="65">
+      </div>
+      <div class="field">
+        <label for="current_weight">Current weight (lbs)</label>
+        <input type="number" id="current_weight" step="1" placeholder="155">
+      </div>
+      <div class="field">
+        <label for="wg_week">Current gestational week</label>
+        <input type="number" id="wg_week" min="1" max="42" step="1" placeholder="20">
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="calculate()">Calculate</button>
+    <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
+    <div class="result" id="result">
+      <div class="result-row">
+        <span class="result-label">Pre-pregnancy BMI</span>
+        <span class="result-value" id="wg-bmi">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Weight gained so far</span>
+        <span class="result-value" id="wg-gained">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Recommended total gain</span>
+        <span class="result-value" id="wg-target">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Status</span>
+        <span class="result-value" id="wg-status">—</span>
+      </div>
+      <div class="result-note">IOM guidelines: Underweight (BMI <18.5): gain 28–40 lbs. Normal (18.5–24.9): 25–35 lbs. Overweight (25–29.9): 15–25 lbs. Obese (30+): 11–20 lbs.</div>
+    </div>
+  </div>
+
+  <div class="ad-rectangle" id="ad-mid">Ad</div>
+  <div class="seo-section">
+    <h2>Recommended Pregnancy Weight Gain</h2>
+    <p>The Institute of Medicine (IOM) recommends different total weight gain ranges based on pre-pregnancy BMI. Most weight gain occurs in the second and third trimesters.</p>
+    <p>In the first trimester, expect 1–4 pounds total. After that, about 1 pound per week for normal weight, 0.5–0.7 lb/week for overweight. These are guidelines — discuss your specific situation with your provider.</p>
+  </div>
+</main>
+<footer>Free pregnancy calculators. No signup, no tracking. These tools are for informational purposes only. Always consult your healthcare provider.<br>Built by <a href="https://thehivemakes.github.io/" style="color:var(--accent)">The Hive</a></footer>
+<script>
+
+function calculate() {
+  const pw = CalcCore.get('pre_weight');
+  const h = CalcCore.get('height_in');
+  const cw = CalcCore.get('current_weight');
+  const week = CalcCore.get('wg_week');
+  if (isNaN(pw)||isNaN(h)||isNaN(cw)||isNaN(week)||pw<=0||h<=0) return;
+
+  const bmi = (pw / (h*h)) * 703;
+  const gained = cw - pw;
+
+  let targetLo, targetHi, category;
+  if (bmi < 18.5) { targetLo=28; targetHi=40; category='Underweight'; }
+  else if (bmi < 25) { targetLo=25; targetHi=35; category='Normal weight'; }
+  else if (bmi < 30) { targetLo=15; targetHi=25; category='Overweight'; }
+  else { targetLo=11; targetHi=20; category='Obese'; }
+
+  const expectedAtWeek = (week <= 13) ? (gained) : targetLo * (week / 40);
+  let status;
+  const pctThrough = week / 40;
+  const expectedLo = targetLo * pctThrough;
+  const expectedHi = targetHi * pctThrough;
+  if (gained < expectedLo * 0.8) status = 'Below recommended range \u2014 discuss with provider';
+  else if (gained > expectedHi * 1.2) status = 'Above recommended range \u2014 discuss with provider';
+  else status = 'Within recommended range';
+
+  CalcCore.set('wg-bmi', CalcCore.fmt(bmi,1) + ' (' + category + ')');
+  CalcCore.set('wg-gained', CalcCore.fmt(gained,1) + ' lbs so far');
+  CalcCore.set('wg-target', targetLo + '\u2013' + targetHi + ' lbs total by week 40');
+  CalcCore.set('wg-status', status);
+  CalcCore.showResult();
+  CalcCore.saveParams(['pre_weight','height_in','current_weight','wg_week']);
+}
+
+function clearAll() {
+  ["pre_weight", "height_in", "current_weight", "wg_week"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = el.defaultValue || '';
+  });
+  document.getElementById('result').classList.remove('visible');
+  history.replaceState(null, '', window.location.pathname);
+}
+
+document.addEventListener('DOMContentLoaded', () => { if (window.location.search) calculate(); });
+</script>
+</body>
+</html>
